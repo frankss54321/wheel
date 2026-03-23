@@ -46,7 +46,10 @@
             width: 100%; padding: 15px; height: calc(100vh - 40px); overflow: hidden;
         }
 
-        .left-section { display: flex; flex-direction: column; height: 100%; gap: 10px; align-items: center; position: relative; }
+        .left-section { 
+            display: flex; flex-direction: column; height: 100%; gap: 10px; 
+            align-items: center; position: relative; padding: 10px 0;
+        }
 
         .wheel-wrapper {
             flex: 1; width: 100%; display: flex; align-items: center; justify-content: center;
@@ -64,7 +67,8 @@
         .controls-wrapper {
             flex-shrink: 0; background: #fff; padding: 6px 15px; border-radius: 50px;
             border: 2px solid var(--secondary-color); box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            display: flex; align-items: center; justify-content: center; gap: 10px; width: fit-content; margin-bottom: 5px;
+            display: flex; align-items: center; justify-content: center; gap: 10px; 
+            width: fit-content; margin-bottom: 10px; z-index: 70;
         }
 
         .input-group { display: flex; align-items: center; gap: 5px; background: #f4f4f4; padding: 4px 10px; border-radius: 15px; }
@@ -96,13 +100,28 @@
 
         .btn-close { background: #E2F0CB; color: #555; border: none; padding: 10px 25px; border-radius: 10px; font-size: 1rem; cursor: pointer; font-weight: bold; }
 
-        .settings-mini-panel { 
-            position: absolute; bottom: 0; left: 0; 
-            background: rgba(255, 255, 255, 0.85); padding: 10px 12px; 
-            border-radius: 12px; font-size: 0.75rem; display: flex; 
-            flex-direction: column; gap: 8px; border: 1px solid #e0e0e0; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); backdrop-filter: blur(4px); z-index: 60; 
+        /* --- 預設值面板樣式修正：增加收合功能 --- */
+        .settings-container {
+            position: absolute; top: 10px; left: 10px; z-index: 100;
+            display: flex; flex-direction: column; align-items: flex-start; gap: 5px;
         }
+
+        /* 齒輪按鈕 */
+        .btn-toggle-settings {
+            width: 36px; height: 36px; background: #fff; border: 1px solid #ddd;
+            border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.3s;
+        }
+        .btn-toggle-settings:hover { transform: rotate(45deg); }
+
+        .settings-mini-panel { 
+            background: rgba(255, 255, 255, 0.95); padding: 12px; 
+            border-radius: 12px; font-size: 0.75rem; display: none; /* 預設隱藏 */
+            flex-direction: column; gap: 8px; border: 1px solid #ddd; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); backdrop-filter: blur(8px);
+        }
+        .settings-mini-panel.open { display: flex; } /* 打開狀態 */
+
         .settings-mini-panel .setting-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
         .settings-mini-panel input { 
             width: 45px; border: 1px solid #ccc; border-radius: 4px; 
@@ -123,7 +142,7 @@
             .wheel-wrapper { height: 45vh; }
             .wheel-container { width: 40vh; height: 40vh; }
             .controls-wrapper { flex-wrap: wrap; width: 95%; border-radius: 20px; }
-            .settings-mini-panel { display: none; }
+            .settings-container { display: none; }
             .history-content { grid-template-columns: 1fr; }
         }
     </style>
@@ -139,6 +158,27 @@
 
     <div class="main-container">
         <section class="left-section">
+            <!-- 預設值面板容器 -->
+            <div class="settings-container">
+                <button class="btn-toggle-settings" onclick="toggleSettings()" title="設定預設值">⚙️</button>
+                <div class="settings-mini-panel" id="settingsPanel">
+                    <div class="setting-row">
+                        <label>預設總數 (1-50)</label>
+                        <input type="number" id="defTotal" value="28" min="1" max="50" oninput="limitValue(this, 1, 50)">
+                    </div>
+                    <div class="setting-row">
+                        <label>預設球數 (1-10)</label>
+                        <input type="number" id="defBalls" value="1" min="1" max="10" oninput="limitValue(this, 1, 10)">
+                    </div>
+                    <div class="setting-row">
+                        <label>預設移除號碼</label>
+                        <input type="text" id="defExcludes" class="wide-input" placeholder="">
+                    </div>
+                    <button class="btn-save-default" onclick="saveSystemDefaults()">💾 儲存為開啟預設</button>
+                    <div style="font-size: 10px; color: #999; text-align: center; margin-top: 5px;">點擊齒輪可收合選單</div>
+                </div>
+            </div>
+
             <div class="wheel-wrapper">
                 <div class="wheel-container">
                     <div class="static-wheel" id="wheel"></div>
@@ -169,22 +209,6 @@
                 <div style="width: 1px; height: 20px; background: #eee; margin: 0 5px;"></div>
                 <button class="btn-spin" id="spinBtn" onclick="spin()">GO!</button>
             </div>
-
-            <div class="settings-mini-panel">
-                <div class="setting-row">
-                    <label>預設總數 (1-50)</label>
-                    <input type="number" id="defTotal" value="28" min="1" max="50" oninput="limitValue(this, 1, 50)">
-                </div>
-                <div class="setting-row">
-                    <label>預設球數 (1-10)</label>
-                    <input type="number" id="defBalls" value="1" min="1" max="10" oninput="limitValue(this, 1, 10)">
-                </div>
-                <div class="setting-row">
-                    <label>預設移除號碼</label>
-                    <input type="text" id="defExcludes" class="wide-input" placeholder="">
-                </div>
-                <button class="btn-save-default" onclick="saveSystemDefaults()">💾 儲存為開啟預設</button>
-            </div>
         </section>
 
         <aside class="history-panel">
@@ -204,7 +228,12 @@
     </div>
 
     <script>
-        // 即時限制輸入值的函式
+        // 切換面板顯示/隱藏
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('open');
+        }
+
         function limitValue(obj, min, max) {
             let val = parseInt(obj.value);
             if (isNaN(val)) return;
@@ -261,7 +290,6 @@
                 excludeInput.value = savedExcludes;
                 defExcludesInput.value = savedExcludes;
             }
-            // 防呆球數不可大於總數
             if (numBalls >= numSegments) {
                 numBalls = 1;
                 ballCountSelect.value = 1;
@@ -290,6 +318,7 @@
             ballCountSelect.value = b; 
             excludeInput.value = e;
             initWheel();
+            toggleSettings(); // 儲存後自動關閉面板
         }
 
         function getExcludedList() { return excludeInput.value.split(/[\s,，.]+/).map(Number).filter(n => !isNaN(n) && n > 0 && n <= numSegments); }
