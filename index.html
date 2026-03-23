@@ -14,6 +14,8 @@
             --card-bg: rgba(255, 255, 255, 0.95);
             --text-primary: #555;
             --border-radius: 16px;
+            --drawn-bg: #f0f0f0; 
+            --drawn-text: #ccc;   
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -25,26 +27,19 @@
             background-image: radial-gradient(#FFB7B2 20%, transparent 20%), radial-gradient(#B5EAD7 20%, transparent 20%);
             background-position: 0 0, 50px 50px;
             background-size: 100px 100px;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            color: var(--text-primary);
-            user-select: none;
+            height: 100vh; overflow: hidden; display: flex; flex-direction: column;
+            color: var(--text-primary); user-select: none;
         }
 
         header {
-            height: 40px;
-            display: flex; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.6);
-            backdrop-filter: blur(5px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            flex-shrink: 0; z-index: 50;
+            height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.6); backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; z-index: 50;
         }
 
         .title-wrapper { display: flex; align-items: baseline; gap: 8px; }
         .title-wrapper h1 { font-size: 1.2rem; margin: 0; color: #666; letter-spacing: 2px; }
-        .watermark { font-size: 0.85rem; color: #999; font-family: 'Noto Sans TC', sans-serif; }
+        .watermark { font-size: 0.85rem; color: #999; }
 
         .main-container {
             flex: 1; display: grid; grid-template-columns: 6fr 4fr; gap: 15px;
@@ -58,179 +53,78 @@
             position: relative; min-height: 0;
         }
 
-        .wheel-container {
-            position: relative; width: 75vh; height: 75vh; max-width: 90%; max-height: 90%;
-        }
+        .wheel-container { position: relative; width: 75vh; height: 75vh; max-width: 90%; max-height: 90%; }
 
-        /* 預設值設定面板 - 左下角微縮版 */
-        .settings-mini-panel {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            background: rgba(255, 255, 255, 0.85);
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            backdrop-filter: blur(4px);
-            z-index: 60;
-        }
-        .settings-mini-panel .setting-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-        .settings-mini-panel label { color: #777; font-weight: bold; font-family: 'Noto Sans TC'; }
-        .settings-mini-panel input { 
-            width: 45px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-size: 0.75rem; padding: 2px;
-            background: #fff;
-        }
-        .btn-save-default {
-            background: #B5EAD7; border: none; border-radius: 6px; color: #555; 
-            cursor: pointer; padding: 4px; font-size: 0.7rem; font-weight: bold;
-            margin-top: 2px; transition: background 0.2s;
-        }
-        .btn-save-default:hover { background: #a2d9c5; }
+        .static-wheel { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
+        .wheel-line { position: absolute; left: 50%; bottom: 50%; width: 2px; height: 50%; background-color: #fff; transform-origin: bottom center; z-index: 5; pointer-events: none; margin-left: -1px; }
+
+        .number-label { position: absolute; top: 50%; left: 50%; width: 0; height: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #777; pointer-events: none; z-index: 10; }
+        .number-label.drawn, .number-label.excluded { color: var(--drawn-text) !important; text-decoration: line-through; }
 
         .controls-wrapper {
-            flex-shrink: 0; background: #fff; padding: 6px 12px; border-radius: 50px;
-            border: 2px solid var(--secondary-color);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            width: fit-content; margin-bottom: 5px;
+            flex-shrink: 0; background: #fff; padding: 6px 15px; border-radius: 50px;
+            border: 2px solid var(--secondary-color); box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: flex; align-items: center; justify-content: center; gap: 10px; width: fit-content; margin-bottom: 5px;
         }
 
-        .input-group {
-            display: flex; align-items: center; gap: 5px;
-            background: #f4f4f4; padding: 4px 10px; border-radius: 15px;
-        }
+        .input-group { display: flex; align-items: center; gap: 5px; background: #f4f4f4; padding: 4px 10px; border-radius: 15px; }
         .input-group label { font-size: 0.8rem; color: #888; font-weight: bold; white-space: nowrap;}
-        .input-group input, .input-group select {
-            border: none; background: transparent; font-size: 1rem;
-            font-weight: bold; color: #444; width: 40px; text-align: center; outline: none;
-        }
+        .input-group input, .input-group select { border: none; background: transparent; font-size: 1rem; font-weight: bold; color: #444; width: 40px; text-align: center; outline: none; }
+        .input-group input#excludeInput { width: 100px; text-align: left; font-size: 0.9rem; }
 
-        .btn-reset {
-            background: #FFDAC1; border: none; padding: 6px 12px; border-radius: 12px;
-            color: #666; font-weight: bold; cursor: pointer; font-size: 0.9rem;
-        }
-
-        .btn-spin {
-            background: var(--accent-color); color: white; border: none;
-            border-radius: 20px; padding: 0 25px; height: 36px;
-            font-size: 1.1rem; font-weight: bold; cursor: pointer;
-            box-shadow: 0 3px 0 #ff7eb9; transition: transform 0.1s;
-            white-space: nowrap; display: flex; align-items: center;
-        }
+        .btn-reset { background: #FFDAC1; border: none; padding: 6px 12px; border-radius: 12px; color: #666; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+        .btn-spin { background: var(--accent-color); color: white; border: none; border-radius: 20px; padding: 0 25px; height: 36px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 #ff7eb9; transition: transform 0.1s; white-space: nowrap; }
         .btn-spin:active { transform: translateY(2px); box-shadow: 0 1px 0 #ff7eb9; }
         .btn-spin:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
 
-        .history-panel {
-            background: var(--card-bg); border-radius: var(--border-radius);
-            border: 3px solid #C7CEEA; display: flex; flex-direction: column;
-            overflow: hidden; height: 100%;
+        .history-panel { background: var(--card-bg); border-radius: var(--border-radius); border: 3px solid #C7CEEA; display: flex; flex-direction: column; overflow: hidden; height: 100%; }
+        .history-header { text-align: center; padding: 8px; background: #C7CEEA; color: #555; font-weight: bold; font-size: 1rem; flex-shrink: 0; }
+        .history-content { flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: min-content; gap: 12px; align-content: start; }
+        .history-item { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 12px 8px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); animation: popIn 0.3s ease; }
+        .batch-tag { font-size: 0.85rem; color: #666; background: #f0f0f0; padding: 2px 10px; border-radius: 4px; align-self: center; font-weight: bold; }
+        .ball-grid { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; }
+        .mini-ball { width: 36px; height: 36px; background: #fff; border: 2.5px solid var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; color: #555; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 200; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px 40px; border-radius: 20px; text-align: center; border: 6px solid var(--secondary-color); animation: zoomIn 0.3s; }
+        .result-balls { display: flex; flex-direction: row; justify-content: center; gap: 15px; margin: 25px 0; flex-wrap: wrap; }
+        .big-ball { width: 65px; height: 65px; background: var(--accent-color); color: white; font-size: 2rem; font-weight: bold; border-radius: 50%; border: 3px solid white; display: flex; align-items: center; justify-content: center; animation: bounce 1s infinite; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+
+        .ball { position: absolute; left: 50%; transform: translateX(-50%); top: 12px; background: radial-gradient(circle at 35% 35%, #fff 5%, #e0e0e0 20%, #888 50%, #444 85%, #222 100%); border-radius: 50%; border: 1px solid #666; box-shadow: 1px 2px 3px rgba(0,0,0,0.4); z-index: 100; }
+        .tracks-container, .ball-track { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; border-radius: 50%; z-index: 20; }
+        .center-decor { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 44px; height: 44px; background: #fff; border-radius: 50%; z-index: 30; display: flex; align-items: center; justify-content: center; border: 4px solid var(--accent-color); cursor: pointer; }
+
+        .btn-close { background: #E2F0CB; color: #555; border: none; padding: 10px 25px; border-radius: 10px; font-size: 1rem; cursor: pointer; font-weight: bold; }
+
+        .settings-mini-panel { 
+            position: absolute; bottom: 0; left: 0; 
+            background: rgba(255, 255, 255, 0.85); padding: 10px 12px; 
+            border-radius: 12px; font-size: 0.75rem; display: flex; 
+            flex-direction: column; gap: 8px; border: 1px solid #e0e0e0; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); backdrop-filter: blur(4px); z-index: 60; 
+        }
+        .settings-mini-panel .setting-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .settings-mini-panel input { 
+            width: 45px; border: 1px solid #ccc; border-radius: 4px; 
+            text-align: center; font-size: 0.75rem; padding: 2px; 
+        }
+        .settings-mini-panel input.wide-input { width: 80px; text-align: left; }
+        .btn-save-default { 
+            background: var(--secondary-color); border: none; border-radius: 6px; 
+            color: #555; cursor: pointer; padding: 6px; font-size: 0.75rem; 
+            font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 4px;
         }
 
-        .history-header {
-            text-align: center; padding: 8px; background: #C7CEEA; color: #555;
-            font-weight: bold; font-size: 1rem; flex-shrink: 0; letter-spacing: 1px;
-        }
-
-        .history-content {
-            flex: 1; overflow-y: auto; padding: 10px;
-            display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: min-content;
-            gap: 12px; align-content: start;
-        }
-        .history-content::-webkit-scrollbar { width: 4px; }
-        .history-content::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
-
-        .history-item {
-            background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 12px 8px;
-            display: flex; flex-direction: column; gap: 10px;
-            animation: popIn 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        }
-
-        .batch-tag {
-            font-size: 0.85rem; color: #666; background: #f0f0f0;
-            padding: 2px 10px; border-radius: 4px; align-self: center; font-weight: bold;
-        }
-
-        .ball-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-
-        .mini-ball {
-            width: 36px; height: 36px; background: #fff; border: 2.5px solid var(--accent-color);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; font-weight: 800; color: #555;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .static-wheel {
-            width: 100%; height: 100%; border-radius: 50%;
-            border: 8px solid #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            position: relative; overflow: hidden;
-        }
-
-        .wheel-line {
-            position: absolute; left: 50%; bottom: 50%; width: 2px; height: 50%;
-            background-color: #fff; transform-origin: bottom center; z-index: 5;
-            pointer-events: none; margin-left: -1px; 
-        }
-
-        .number-label {
-            position: absolute; top: 50%; left: 50%; width: 0; height: 0;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 800; color: #777; pointer-events: none; z-index: 10;
-        }
-        .number-label.drawn { color: #ddd !important; }
-        
-        .tracks-container, .ball-track {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; border-radius: 50%; z-index: 20;
-        }
-        
-        .ball {
-            position: absolute; left: 50%; transform: translateX(-50%); top: 12px;
-            background: radial-gradient(circle at 35% 35%, #fff 5%, #e0e0e0 20%, #888 50%, #444 85%, #222 100%);
-            border-radius: 50%; border: 1px solid #666; 
-            box-shadow: 1px 2px 3px rgba(0,0,0,0.4); z-index: 100;
-        }
-        
-        .center-decor {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 44px; height: 44px; background: #fff; border-radius: 50%; z-index: 30;
-            display: flex; align-items: center; justify-content: center;
-            border: 4px solid var(--accent-color); cursor: pointer;
-        }
-
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 200;
-            justify-content: center; align-items: center;
-        }
-        .modal-box {
-            background: white; padding: 25px 40px; border-radius: 20px; text-align: center;
-            border: 6px solid var(--secondary-color); animation: zoomIn 0.3s;
-        }
-        .result-balls { display: flex; justify-content: center; gap: 15px; margin: 20px 0; flex-wrap: wrap; }
-        .big-ball {
-            width: 60px; height: 60px; background: var(--accent-color); color: white;
-            font-size: 1.8rem; font-weight: bold; border-radius: 50%; border: 3px solid white;
-            display: flex; align-items: center; justify-content: center; animation: bounce 1s infinite;
-        }
-        .btn-close {
-            background: #E2F0CB; color: #555; border: none; padding: 10px 25px;
-            border-radius: 10px; font-size: 1rem; cursor: pointer; font-weight: bold;
-        }
         @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
         @media (max-width: 900px) {
             .main-container { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-            .left-section { height: auto; }
-            .wheel-wrapper { height: 50vh; }
-            .wheel-container { width: 45vh; height: 45vh; }
-            .controls-wrapper { flex-wrap: wrap; width: 90%; }
+            .wheel-wrapper { height: 45vh; }
+            .wheel-container { width: 40vh; height: 40vh; }
+            .controls-wrapper { flex-wrap: wrap; width: 95%; border-radius: 20px; }
             .settings-mini-panel { display: none; }
+            .history-content { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -245,7 +139,6 @@
 
     <div class="main-container">
         <section class="left-section">
-            <!-- 轉盤主體 -->
             <div class="wheel-wrapper">
                 <div class="wheel-container">
                     <div class="static-wheel" id="wheel"></div>
@@ -254,11 +147,14 @@
                 </div>
             </div>
 
-            <!-- 下方即時控制欄 -->
             <div class="controls-wrapper">
                 <div class="input-group">
                     <label>總數</label>
-                    <input type="number" id="countInput" value="28" min="2" max="50">
+                    <input type="number" id="countInput" value="28" min="2" max="50" oninput="limitValue(this, 2, 50)">
+                </div>
+                <div class="input-group">
+                    <label>移除號碼</label>
+                    <input type="text" id="excludeInput" placeholder="" title="請輸入要跳過的號碼">
                 </div>
                 <div class="input-group">
                     <label>球數</label>
@@ -274,15 +170,18 @@
                 <button class="btn-spin" id="spinBtn" onclick="spin()">GO!</button>
             </div>
 
-            <!-- 左下角預設值面板 -->
             <div class="settings-mini-panel">
                 <div class="setting-row">
                     <label>預設總數 (1-50)</label>
-                    <input type="number" id="defTotal" value="28" min="1" max="50">
+                    <input type="number" id="defTotal" value="28" min="1" max="50" oninput="limitValue(this, 1, 50)">
                 </div>
                 <div class="setting-row">
                     <label>預設球數 (1-10)</label>
-                    <input type="number" id="defBalls" value="1" min="1" max="10">
+                    <input type="number" id="defBalls" value="1" min="1" max="10" oninput="limitValue(this, 1, 10)">
+                </div>
+                <div class="setting-row">
+                    <label>預設移除號碼</label>
+                    <input type="text" id="defExcludes" class="wide-input" placeholder="">
                 </div>
                 <button class="btn-save-default" onclick="saveSystemDefaults()">💾 儲存為開啟預設</button>
             </div>
@@ -291,7 +190,7 @@
         <aside class="history-panel">
             <div class="history-header">📜 抽獎紀錄</div>
             <div class="history-content" id="historyGroups">
-                <div style="grid-column: 1/-1; text-align: center; color: #aaa; margin-top: 20px;">尚無紀錄</div>
+                <div style="grid-column: 1 / -1; text-align:center; color:#aaa; margin-top:20px;">尚無紀錄</div>
             </div>
         </aside>
     </div>
@@ -305,72 +204,27 @@
     </div>
 
     <script>
-        /* --- 音效系統 --- */
+        // 即時限制輸入值的函式
+        function limitValue(obj, min, max) {
+            let val = parseInt(obj.value);
+            if (isNaN(val)) return;
+            if (val > max) obj.value = max;
+            if (val < min && obj.value.length >= String(min).length) obj.value = min;
+        }
+
         const synthSound = {
-            ctx: null,
-            timeoutId: null,
-            init: function() {
-                if (!this.ctx) {
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    this.ctx = new AudioContext();
-                }
-                if (this.ctx.state === 'suspended') this.ctx.resume();
-            },
-            playTick: function() {
-                if (!this.ctx) return;
-                const t = this.ctx.currentTime;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'triangle';
-                const freq = 1000 + Math.random() * 200;
-                osc.frequency.setValueAtTime(freq, t);
-                gain.gain.setValueAtTime(0.3, t);
-                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.03);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(t);
-                osc.stop(t + 0.05);
-            },
-            startDeceleratingLoop: function(elapsedTime = 0, currentInterval = 30) {
-                this.init();
-                if (elapsedTime > 2600) return;
-                this.playTick();
-                const nextInterval = currentInterval * 1.06;
-                this.timeoutId = setTimeout(() => {
-                    this.startDeceleratingLoop(elapsedTime + nextInterval, nextInterval);
-                }, nextInterval);
-            },
-            stop: function() {
-                if (this.timeoutId) {
-                    clearTimeout(this.timeoutId);
-                    this.timeoutId = null;
-                }
-            },
-            playWin: function() {
-                this.stop();
-                this.init();
-                const notes = [523.25, 659.25, 783.99, 1046.50];
-                const start = this.ctx.currentTime;
-                notes.forEach((freq, i) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
-                    const time = start + (i * 0.1);
-                    gain.gain.setValueAtTime(0, time);
-                    gain.gain.linearRampToValueAtTime(0.3, time + 0.05);
-                    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.8);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start(time);
-                    osc.stop(time + 0.8);
-                });
-            }
+            ctx: null, timeoutId: null,
+            init: function() { if (!this.ctx) { const AudioContext = window.AudioContext || window.webkitAudioContext; this.ctx = new AudioContext(); } if (this.ctx.state === 'suspended') this.ctx.resume(); },
+            playTick: function() { if (!this.ctx) return; const t = this.ctx.currentTime; const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(1000 + Math.random() * 200, t); gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.03); osc.connect(gain); gain.connect(this.ctx.destination); osc.start(t); osc.stop(t + 0.05); },
+            startDeceleratingLoop: function(elapsedTime = 0, currentInterval = 30) { this.init(); if (elapsedTime > 2600) return; this.playTick(); const nextInterval = currentInterval * 1.06; this.timeoutId = setTimeout(() => { this.startDeceleratingLoop(elapsedTime + nextInterval, nextInterval); }, nextInterval); },
+            stop: function() { if (this.timeoutId) { clearTimeout(this.timeoutId); this.timeoutId = null; } },
+            playWin: function() { this.stop(); this.init(); const notes = [523.25, 659.25, 783.99, 1046.50]; const start = this.ctx.currentTime; notes.forEach((freq, i) => { const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain(); osc.type = 'sine'; osc.frequency.value = freq; const time = start + (i * 0.1); gain.gain.setValueAtTime(0, time); gain.gain.linearRampToValueAtTime(0.3, time + 0.05); gain.gain.exponentialRampToValueAtTime(0.001, time + 0.8); osc.connect(gain); gain.connect(this.ctx.destination); osc.start(time); osc.stop(time + 0.8); }); }
         };
 
         const wheel = document.getElementById('wheel');
         const tracksContainer = document.getElementById('tracksContainer');
         const countInput = document.getElementById('countInput');
+        const excludeInput = document.getElementById('excludeInput');
         const ballCountSelect = document.getElementById('ballCountSelect');
         const resultModal = document.getElementById('resultModal');
         const winnerDisplay = document.getElementById('winnerDisplay');
@@ -379,142 +233,121 @@
         
         const defTotalInput = document.getElementById('defTotal');
         const defBallsInput = document.getElementById('defBalls');
+        const defExcludesInput = document.getElementById('defExcludes');
 
         let numSegments = 28, numBalls = 1, isSpinning = false;
         let drawnHistory = [], historyBatches = [];
 
         document.body.addEventListener('click', ()=>{ synthSound.init(); }, {once:true});
-        
-        ballCountSelect.addEventListener('change', function(){ if(!isSpinning) { let v=parseInt(this.value), m=parseInt(countInput.value); if(v>=m){alert("球數需小於總數");this.value=1;numBalls=1;}else{numBalls=v;} createBalls(); }});
+        excludeInput.addEventListener('input', () => { if(!isSpinning) drawStaticWheel(); });
+        ballCountSelect.addEventListener('change', function(){ if(!isSpinning) { let v=parseInt(this.value); numBalls=v; createBalls(); }});
         countInput.addEventListener("keypress", (e)=>{if(e.key==="Enter")initWheel();});
         window.addEventListener('resize', ()=>{if(!isSpinning){drawStaticWheel();createBalls();}});
 
-        // 載入 localStorage 預設值
         function loadSystemDefaults() {
             let savedTotal = localStorage.getItem('zy_default_total');
             let savedBalls = localStorage.getItem('zy_default_balls');
-            
-            if (savedTotal) {
-                let t = Math.max(1, Math.min(50, parseInt(savedTotal)));
-                numSegments = t;
-                countInput.value = t;
-                defTotalInput.value = t;
+            let savedExcludes = localStorage.getItem('zy_default_excludes');
+
+            if (savedTotal) { 
+                let t = Math.max(1, Math.min(50, parseInt(savedTotal))); 
+                numSegments = t; countInput.value = t; defTotalInput.value = t; 
             }
-            if (savedBalls) {
-                let b = Math.max(1, Math.min(10, parseInt(savedBalls)));
-                numBalls = b;
-                ballCountSelect.value = b;
-                defBallsInput.value = b;
+            if (savedBalls) { 
+                let b = Math.max(1, Math.min(10, parseInt(savedBalls))); 
+                numBalls = b; ballCountSelect.value = b; defBallsInput.value = b; 
             }
+            if (savedExcludes !== null) {
+                excludeInput.value = savedExcludes;
+                defExcludesInput.value = savedExcludes;
+            }
+            // 防呆球數不可大於總數
             if (numBalls >= numSegments) {
                 numBalls = 1;
                 ballCountSelect.value = 1;
             }
         }
 
-        // 儲存至 localStorage
         function saveSystemDefaults() {
-            let t = parseInt(defTotalInput.value);
-            let b = parseInt(defBallsInput.value);
+            let t = Math.max(1, Math.min(50, parseInt(defTotalInput.value)));
+            let b = Math.max(1, Math.min(10, parseInt(defBallsInput.value)));
+            let e = defExcludesInput.value;
 
-            if (isNaN(t) || t < 1 || t > 50) { alert("總數必須在 1~50 之間"); return; }
-            if (isNaN(b) || b < 1 || b > 10) { alert("球數必須在 1~10 之間"); return; }
-            if (b >= t) { alert("預設球數必須小於總數！"); return; }
+            if (b >= t) { 
+                alert("球數必須小於總數！系統已為您自動調整。"); 
+                b = 1;
+            }
 
-            localStorage.setItem('zy_default_total', t);
+            localStorage.setItem('zy_default_total', t); 
             localStorage.setItem('zy_default_balls', b);
+            localStorage.setItem('zy_default_excludes', e);
+
+            alert(`預設值已儲存！下次開啟網頁將自動套用。`); 
             
-            alert(`已儲存預設值！\n每次開啟網頁時，總數將自動設為 ${t}，球數設為 ${b}。`);
-            
-            countInput.value = t;
-            ballCountSelect.value = b;
+            defTotalInput.value = t;
+            defBallsInput.value = b;
+            countInput.value = t; 
+            ballCountSelect.value = b; 
+            excludeInput.value = e;
             initWheel();
         }
 
+        function getExcludedList() { return excludeInput.value.split(/[\s,，.]+/).map(Number).filter(n => !isNaN(n) && n > 0 && n <= numSegments); }
+
         function initWheel() {
             if(isSpinning) return;
-            let iv = parseInt(countInput.value), bv = parseInt(ballCountSelect.value);
-            if(iv<2) iv=2; if(iv>50) iv=50;
-            if(bv>=iv) { bv=1; ballCountSelect.value=1; }
+            let iv = Math.max(2, Math.min(50, parseInt(countInput.value)));
+            let bv = parseInt(ballCountSelect.value);
+            if(bv >= iv) { bv = 1; ballCountSelect.value = 1; }
             numSegments=iv; numBalls=bv; countInput.value=numSegments;
-            drawnHistory=[]; historyBatches=[];
-            updateHistoryUI(); drawStaticWheel(); createBalls();
+            drawnHistory=[]; historyBatches=[]; updateHistoryUI(); drawStaticWheel(); createBalls();
         }
 
         function drawStaticWheel() {
             wheel.innerHTML = '';
             const deg = 360/numSegments;
             const r = wheel.clientWidth/2;
-            const offset = r * 0.65; 
+            const excluded = getExcludedList();
 
             let grad = 'conic-gradient(';
             for(let i=0; i<numSegments; i++) {
-                let start = i * deg;
-                let end = (i+1) * deg;
-                let c = drawnHistory.includes(i+1) ? '#f0f0f0' : `hsl(${(i/numSegments)*360}, 85%, 75%)`;
-                grad += `${c} ${start}deg ${end}deg` + (i < numSegments-1 ? ', ' : '');
+                let n = i + 1;
+                let c = (excluded.includes(n) || drawnHistory.includes(n)) ? 'var(--drawn-bg)' : `hsl(${(i/numSegments)*360}, 85%, 75%)`;
+                grad += `${c} ${i*deg}deg ${(i+1)*deg}deg` + (i < numSegments-1 ? ', ' : '');
             }
             grad += ')';
             wheel.style.background = grad;
 
             let fs = numSegments > 40 ? 10 : (numSegments > 24 ? 14 : 20);
-
             for(let i=0; i<numSegments; i++) {
                 let n = i+1;
-                let line = document.createElement('div');
-                line.className = 'wheel-line';
-                line.style.transform = `rotate(${i * deg}deg)`;
-                wheel.appendChild(line);
-
-                let lbl = document.createElement('div');
-                lbl.className = 'number-label';
-                lbl.innerText = n;
-                lbl.style.fontSize = fs+'px';
-                let mid = (i * deg) + (deg/2);
-                lbl.style.transform = `rotate(${mid}deg) translateY(-${offset}px) rotate(-${mid}deg)`;
-                
+                let line = document.createElement('div'); line.className = 'wheel-line'; line.style.transform = `rotate(${i * deg}deg)`; wheel.appendChild(line);
+                let lbl = document.createElement('div'); lbl.className = 'number-label'; lbl.innerText = n; lbl.style.fontSize = fs+'px';
+                let mid = (i * deg) + (deg/2); lbl.style.transform = `rotate(${mid}deg) translateY(-${r*0.65}px) rotate(-${mid}deg)`;
                 if(drawnHistory.includes(n)) lbl.classList.add('drawn');
+                if(excluded.includes(n)) lbl.classList.add('excluded');
                 wheel.appendChild(lbl);
             }
         }
 
         function createBalls() {
-            tracksContainer.innerHTML = '';
-            const size = wheel.clientWidth;
-            const tr = size * 0.42; 
-            const arc = 2*Math.PI*tr*(1/numSegments);
-            let bs = Math.min(15, arc*0.55); 
-            if(bs < 8) bs = 8; 
-
+            tracksContainer.innerHTML = ''; const size = wheel.clientWidth; const tr = size * 0.42; 
+            const arc = 2*Math.PI*tr*(1/numSegments); let bs = Math.max(8, Math.min(15, arc*0.55));
             for(let i=0; i<numBalls; i++) {
                 let t = document.createElement('div'); t.className='ball-track'; t.style.transform=`rotate(${(360/numBalls)*i}deg)`;
-                let b = document.createElement('div'); b.className='ball'; b.style.width=bs+'px'; b.style.height=bs+'px';
-                b.style.top = `${(size/2 - tr) - (bs/2)}px`;
+                let b = document.createElement('div'); b.className='ball'; b.style.width=bs+'px'; b.style.height=bs+'px'; b.style.top = `${(size/2 - tr) - (bs/2)}px`;
                 t.appendChild(b); tracksContainer.appendChild(t);
             }
         }
 
         function spin() {
-            if(isSpinning) return;
-            synthSound.stop(); 
-            synthSound.startDeceleratingLoop(0, 30); 
-            
-            let bv = parseInt(ballCountSelect.value);
-            if(document.querySelectorAll('.ball-track').length!==bv){numBalls=bv;createBalls();}
-            
+            if(isSpinning) return; synthSound.stop(); 
+            let excluded = getExcludedList();
             let all = Array.from({length:numSegments},(_,i)=>i+1);
-            let avail = all.filter(n=>!drawnHistory.includes(n));
-            if(avail.length<numBalls) { 
-                synthSound.stop();
-                alert(`號碼不足！剩 ${avail.length} 個。`); 
-                return; 
-            }
-
-            isSpinning=true; spinBtn.disabled=true; spinBtn.innerText="...";
-            
-            let wins = shuffle(avail).slice(0, numBalls);
-            drawnHistory.push(...wins); historyBatches.push(wins);
-
+            let avail = all.filter(n => !drawnHistory.includes(n) && !excluded.includes(n));
+            if(avail.length < numBalls) { alert(`可用號碼不足！(剩餘 ${avail.length} 個)`); return; }
+            synthSound.startDeceleratingLoop(0, 30); isSpinning=true; spinBtn.disabled=true; spinBtn.innerText="...";
+            let wins = shuffle(avail).slice(0, numBalls); drawnHistory.push(...wins); historyBatches.push(wins);
             let deg = 360/numSegments;
             let targets = wins.map(n=>({n, ca:((n-1)*deg)+deg/2, fa:0, j:0})).sort((a,b)=>a.n-b.n);
             let safe = deg*0.5;
@@ -524,43 +357,29 @@
                 t.fa = t.ca+j;
             });
             targets = shuffle(targets);
-
             document.querySelectorAll('.ball-track').forEach((trk, i)=>{
-                let extra = Math.floor(3+Math.random()*2)*360;
-                trk.style.transition='none'; trk.style.transform='rotate(0deg)'; trk.offsetHeight;
-                trk.style.transition='transform 2.5s cubic-bezier(0.15,0.85,0.15,1.0)';
-                trk.style.transform=`rotate(${extra + targets[i].fa}deg)`;
+                let extra = Math.floor(3+Math.random()*2)*360; trk.style.transition='none'; trk.style.transform='rotate(0deg)'; trk.offsetHeight;
+                trk.style.transition='transform 2.5s cubic-bezier(0.15,0.85,0.15,1.0)'; trk.style.transform=`rotate(${extra + targets[i].fa}deg)`;
             });
-
-            setTimeout(()=>{
-                isSpinning=false; spinBtn.disabled=false; spinBtn.innerText="GO!";
-                synthSound.playWin();
-                updateHistoryUI(); drawStaticWheel(); showResult(wins);
-            }, 3000);
+            setTimeout(()=>{ isSpinning=false; spinBtn.disabled=false; spinBtn.innerText="GO!"; synthSound.playWin(); updateHistoryUI(); drawStaticWheel(); showResult(wins); }, 3000);
         }
 
         function updateHistoryUI() {
-            historyGroups.innerHTML = '';
-            if(historyBatches.length===0) { historyGroups.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#aaa;margin-top:20px;">尚無紀錄</div>'; return; }
-            historyBatches.forEach((batch, index)=>{
-                let realIdx = index + 1; 
-                let d = document.createElement('div'); d.className='history-item';
-                d.innerHTML = `<div class="batch-tag">第 ${realIdx} 組</div>
-                               <div class="ball-grid">${batch.map(n=>`<div class="mini-ball">${n}</div>`).join('')}</div>`;
-                historyGroups.appendChild(d);
+            historyGroups.innerHTML = ''; if(historyBatches.length===0) { historyGroups.innerHTML='<div style="grid-column: 1 / -1; text-align:center; color:#aaa; margin-top:20px;">尚無紀錄</div>'; return; }
+            historyBatches.forEach((batch, index)=>{ 
+                let d = document.createElement('div'); 
+                d.className = 'history-item'; 
+                d.innerHTML = `<div class="batch-tag">第 ${index + 1} 組</div><div class="ball-grid">${batch.map(n=>`<div class="mini-ball">${n}</div>`).join('')}</div>`; 
+                historyGroups.appendChild(d); 
             });
             historyGroups.scrollTop = historyGroups.scrollHeight;
         }
 
-        function showResult(wins) {
-            winnerDisplay.innerHTML = wins.map(n=>`<div class="big-ball">${n}</div>`).join('');
-            resultModal.style.display='flex';
-        }
+        function showResult(wins) { winnerDisplay.innerHTML = wins.map(n=>`<div class="big-ball">${n}</div>`).join(''); resultModal.style.display='flex'; }
         function closeModal() { resultModal.style.display='none'; }
         function shuffle(arr) { for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
         
-        loadSystemDefaults();
-        initWheel();
+        loadSystemDefaults(); initWheel();
     </script>
 </body>
 </html>
