@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>彩虹轉盤-By致宇老師</title>
+    <!-- 1. 更改標題文字 -->
+    <title>轉盤抽籤</title>
+    
+    <!-- 2. 更改網頁圖示 (使用嵌入式彩色轉盤圖示) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎡</text></svg>">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Noto+Sans+TC:wght@400;700&display=swap');
 
@@ -100,13 +105,11 @@
 
         .btn-close { background: #E2F0CB; color: #555; border: none; padding: 10px 25px; border-radius: 10px; font-size: 1rem; cursor: pointer; font-weight: bold; }
 
-        /* --- 預設值面板樣式修正：增加收合功能 --- */
         .settings-container {
             position: absolute; top: 10px; left: 10px; z-index: 100;
             display: flex; flex-direction: column; align-items: flex-start; gap: 5px;
         }
 
-        /* 齒輪按鈕 */
         .btn-toggle-settings {
             width: 36px; height: 36px; background: #fff; border: 1px solid #ddd;
             border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -116,11 +119,11 @@
 
         .settings-mini-panel { 
             background: rgba(255, 255, 255, 0.95); padding: 12px; 
-            border-radius: 12px; font-size: 0.75rem; display: none; /* 預設隱藏 */
+            border-radius: 12px; font-size: 0.75rem; display: none; 
             flex-direction: column; gap: 8px; border: 1px solid #ddd; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.15); backdrop-filter: blur(8px);
         }
-        .settings-mini-panel.open { display: flex; } /* 打開狀態 */
+        .settings-mini-panel.open { display: flex; } 
 
         .settings-mini-panel .setting-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
         .settings-mini-panel input { 
@@ -151,14 +154,13 @@
 
     <header>
         <div class="title-wrapper">
-            <h1>🍭 彩虹轉盤</h1>
+            <h1>🍭 轉盤抽籤</h1>
             <span class="watermark">By 致宇老師</span>
         </div>
     </header>
 
     <div class="main-container">
         <section class="left-section">
-            <!-- 預設值面板容器 -->
             <div class="settings-container">
                 <button class="btn-toggle-settings" onclick="toggleSettings()" title="設定預設值">⚙️</button>
                 <div class="settings-mini-panel" id="settingsPanel">
@@ -228,7 +230,6 @@
     </div>
 
     <script>
-        // 切換面板顯示/隱藏
         function toggleSettings() {
             const panel = document.getElementById('settingsPanel');
             panel.classList.toggle('open');
@@ -318,7 +319,7 @@
             ballCountSelect.value = b; 
             excludeInput.value = e;
             initWheel();
-            toggleSettings(); // 儲存後自動關閉面板
+            toggleSettings(); 
         }
 
         function getExcludedList() { return excludeInput.value.split(/[\s,，.]+/).map(Number).filter(n => !isNaN(n) && n > 0 && n <= numSegments); }
